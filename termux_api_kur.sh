@@ -4,7 +4,7 @@
 set -e
 pkg install -y curl jq termux-tools >/dev/null
 
-KAYNAK="${TERMUX_APK_RELEASE:-$(termux-info 2>/dev/null | grep -A1 -i 'TERMUX_APK_RELEASE' | tail -1 | tr -d ' ')}"
+KAYNAK="${TERMUX_APP__APK_RELEASE:-${TERMUX_APK_RELEASE:-$(termux-info 2>/dev/null | grep -i -o "APK_RELEASE[=:]* *[A-Z_]*" | head -1)}}"
 echo "Termux kaynagi: ${KAYNAK:-bilinmiyor}"
 
 case "$KAYNAK" in
