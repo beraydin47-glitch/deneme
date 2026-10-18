@@ -1,0 +1,47 @@
+name: APK derle
+
+on:
+  push:
+    paths:
+      - 'android/**'
+      - '.github/workflows/apk.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  derle:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: android-actions/setup-android@v3
+
+      - name: APK derle
+        working-directory: android
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleRelease --no-daemon --stacktrace
+          cp app/build/outputs/apk/release/app-release.apk ../SesDegistirici.apk
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: SesDegistirici
+          path: SesDegistirici.apk
+
+      - name: Indirme linkini guncelle (apk-son surumu)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release delete apk-son --yes --cleanup-tag || true
+          gh release create apk-son SesDegistirici.apk \
+            --target "${{ github.sha }}" \
+            --title "Ses Değiştirici APK" \
+            --notes "Otomatik derlendi: ${{ github.sha }}" \
+            --latest
